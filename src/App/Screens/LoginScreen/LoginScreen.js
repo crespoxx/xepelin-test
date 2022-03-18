@@ -5,17 +5,33 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import XepelinLogo from '../../Assets/xepelin-vertical.webp'
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../../firebase-config' 
+import Snackbar from '@mui/material/Snackbar';
+import { auth } from '../../firebase-config'
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close'; 
 import './LoginScreen.css'
 
 const LoginScreen = ({history}) => {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [open, setOpen] = React.useState(false);
 
     onAuthStateChanged(auth, (currentUser) => {
         if(currentUser) history.push('/gsheet')
     })
+
+    const showMessage = () => {
+        setOpen(true);
+      };
+    
+      const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setOpen(false);
+      };
 
     const login = async () => {
         try{
@@ -27,9 +43,23 @@ const LoginScreen = ({history}) => {
             
             if(user) history.push('/gsheet')
         } catch (error) {
+            showMessage()
             console.log(error)
         }
     }
+
+    const action = (
+        <React.Fragment>
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleClose}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </React.Fragment>
+      );
 
     return(
             <div className="loginCard">
@@ -50,7 +80,13 @@ const LoginScreen = ({history}) => {
                             
                     </Box>
                 </div>
-                
+                <Snackbar
+                    open={open}
+                    autoHideDuration={6000}
+                    onClose={handleClose}
+                    message="Error al iniciar sesión. Por favor revisa tus datos e inténtalo de nuevo."
+                    action={action}
+                />
             </div>
     )
 }
